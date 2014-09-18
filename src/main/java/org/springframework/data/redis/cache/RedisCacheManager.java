@@ -38,18 +38,19 @@ public class RedisCacheManager implements CacheManager {
 	private final ConcurrentMap<String, Cache> caches = new ConcurrentHashMap<String, Cache>();
 	private final Collection<String> names = Collections.unmodifiableSet(caches.keySet());
 	private final RedisTemplate template;
-
+	private final long expiration;
 	private boolean usePrefix;
 	private RedisCachePrefix cachePrefix = new DefaultRedisCachePrefix();
 
-	public RedisCacheManager(RedisTemplate template) {
+	public RedisCacheManager(RedisTemplate template, long expiration) {
 		this.template = template;
+		this.expiration = expiration;
 	}
 
 	public Cache getCache(String name) {
 		Cache c = caches.get(name);
 		if (c == null) {
-			c = new RedisCache(name, (usePrefix ? cachePrefix.prefix(name) : null), template);
+			c = new RedisCache(name, (usePrefix ? cachePrefix.prefix(name) : null), template, expiration);
 			caches.put(name, c);
 		}
 

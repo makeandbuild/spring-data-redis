@@ -43,6 +43,7 @@ class RedisCache implements Cache {
 	private final byte[] setName;
 	private final byte[] cacheLockName;
 	private long WAIT_FOR_LOCK = 300;
+	private final long expiration;
 
 	/**
 	 * 
@@ -52,12 +53,13 @@ class RedisCache implements Cache {
 	 * @param prefix
 	 * @param cachePrefix 
 	 */
-	RedisCache(String name, byte[] prefix, RedisTemplate<? extends Object, ? extends Object> template) {
+	RedisCache(String name, byte[] prefix, RedisTemplate<? extends Object, ? extends Object> template, long expiration) {
 
 		Assert.hasText(name, "non-empty cache name is required");
 		this.name = name;
 		this.template = template;
 		this.prefix = prefix;
+		this.expiration = expiration;
 
 		StringRedisSerializer stringSerializer = new StringRedisSerializer();
 
@@ -103,6 +105,12 @@ class RedisCache implements Cache {
 				connection.multi();
 				connection.set(k, template.getValueSerializer().serialize(value));
 				connection.zAdd(setName, 0, k);
+				if (expiration > 0) {
+					connection.expire(k, expiration);
+					// update the expiration of the set of keys as well
+					connection.expire(setName, expiration);
+				}
+
 				connection.exec();
 
 				return null;

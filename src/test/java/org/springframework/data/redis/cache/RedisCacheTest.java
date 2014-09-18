@@ -60,7 +60,7 @@ public class RedisCacheTest extends AbstractNativeCacheTest<RedisTemplate> {
 
 	
 	protected Cache createCache(RedisTemplate nativeCache) {
-		return new RedisCache(CACHE_NAME, CACHE_NAME.concat(":").getBytes(), nativeCache);
+		return new RedisCache(CACHE_NAME, CACHE_NAME.concat(":").getBytes(), nativeCache, 0);
 	}
 
 	
@@ -129,7 +129,7 @@ public class RedisCacheTest extends AbstractNativeCacheTest<RedisTemplate> {
 	
 	@Test
 	public void testCacheName() throws Exception {
-		CacheManager redisCM = new RedisCacheManager(template);
+		CacheManager redisCM = new RedisCacheManager(template, 0);
 		String cacheName = "s2gx11";
 		Cache cache = redisCM.getCache(cacheName);
 		assertNotNull(cache);
